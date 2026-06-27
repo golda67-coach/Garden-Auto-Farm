@@ -1,185 +1,86 @@
 -- ============================================
--- GROW A GARDEN 2 - AUTO FARM
--- ИСПРАВЛЕННАЯ ВЕРСИЯ
+-- ПРОСТОЙ АВТО-КЛИКЕР ДЛЯ GARDEN
 -- ============================================
 
--- Проверка на повторный запуск
-if _G.GardenFarm then
-    _G.GardenFarm:Destroy()
-end
-
 local player = game.Players.LocalPlayer
-local gui = Instance.new("ScreenGui")
-local frame = Instance.new("Frame")
-local title = Instance.new("TextLabel")
-local harvestBtn = Instance.new("TextButton")
-local sellBtn = Instance.new("TextButton")
-local plantBtn = Instance.new("TextButton")
-local closeBtn = Instance.new("TextButton")
 
 -- Создаём GUI
-gui.Parent = player:WaitForChild("PlayerGui")
-gui.Name = "GardenFarm"
-_G.GardenFarm = gui
+local gui = Instance.new("ScreenGui")
+gui.Parent = player.PlayerGui
 
+local frame = Instance.new("Frame")
 frame.Parent = gui
-frame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+frame.Size = UDim2.new(0, 200, 0, 150)
+frame.Position = UDim2.new(0.5, -100, 0.4, 0)
+frame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
 frame.BorderSizePixel = 0
-frame.Position = UDim2.new(0.5, -120, 0.4, 0)
-frame.Size = UDim2.new(0, 240, 0, 200)
 frame.Active = true
 frame.Draggable = true
-frame.ClipsDescendants = true
 
--- Заголовок
+local title = Instance.new("TextLabel")
 title.Parent = frame
+title.Size = UDim2.new(1, 0, 0, 30)
 title.BackgroundColor3 = Color3.fromRGB(0, 180, 0)
-title.Size = UDim2.new(1, 0, 0, 35)
-title.Position = UDim2.new(0, 0, 0, 0)
-title.Text = "🌱 GARDEN FARM"
+title.Text = "🌱 FARM"
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
 title.Font = Enum.Font.GothamBold
 title.TextSize = 16
-title.TextScaled = true
 
--- Функция создания кнопок
-local function makeBtn(text, y, color)
-    local btn = Instance.new("TextButton")
-    btn.Parent = frame
-    btn.BackgroundColor3 = color
-    btn.Size = UDim2.new(0.8, 0, 0, 35)
-    btn.Position = UDim2.new(0.1, 0, 0, y)
-    btn.Text = text
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 14
-    btn.BorderSizePixel = 0
-    return btn
-end
+local btn = Instance.new("TextButton")
+btn.Parent = frame
+btn.Size = UDim2.new(0.8, 0, 0, 35)
+btn.Position = UDim2.new(0.1, 0, 0, 40)
+btn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+btn.Text = "ВКЛ"
+btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+btn.Font = Enum.Font.GothamBold
+btn.TextSize = 14
+btn.BorderSizePixel = 0
 
-harvestBtn = makeBtn("СОБРАТЬ", 45, Color3.fromRGB(0, 150, 0))
-sellBtn = makeBtn("ПРОДАТЬ", 90, Color3.fromRGB(0, 130, 200))
-plantBtn = makeBtn("ПОСАДИТЬ", 135, Color3.fromRGB(180, 130, 0))
+local close = Instance.new("TextButton")
+close.Parent = frame
+close.Size = UDim2.new(0.15, 0, 0, 25)
+close.Position = UDim2.new(0.85, 0, 0, 2)
+close.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
+close.Text = "X"
+close.TextColor3 = Color3.fromRGB(255, 255, 255)
+close.Font = Enum.Font.GothamBold
+close.TextSize = 14
+close.BorderSizePixel = 0
 
--- Кнопка закрыть
-closeBtn.Parent = frame
-closeBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
-closeBtn.Size = UDim2.new(0.2, 0, 0, 30)
-closeBtn.Position = UDim2.new(0.8, 0, 0, 2)
-closeBtn.Text = "✕"
-closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeBtn.Font = Enum.Font.GothamBold
-closeBtn.TextSize = 14
-closeBtn.BorderSizePixel = 0
+local running = true
 
--- Переменные состояния
-local harvestOn = true
-local sellOn = true
-local plantOn = true
+btn.MouseButton1Click:Connect(function()
+    running = not running
+    btn.BackgroundColor3 = running and Color3.fromRGB(0, 150, 0) or Color3.fromRGB(80, 0, 0)
+    btn.Text = running and "ВКЛ" or "ВЫКЛ"
+end)
 
--- Функция поиска кнопок в игре
-local function findButton(...)
-    local texts = {...}
-    for _, v in pairs(game:GetDescendants()) do
-        if v:IsA("TextButton") or v:IsA("ImageButton") then
-            if v.Visible and v.Active then
-                local text = v.Text or ""
-                for _, search in ipairs(texts) do
-                    if string.find(string.lower(text), string.lower(search)) then
-                        return v
+close.MouseButton1Click:Connect(function()
+    gui:Destroy()
+end)
+
+-- Поиск и клик по кнопкам
+spawn(function()
+    while gui and gui.Parent do
+        wait(1)
+        if running then
+            for _, v in pairs(game:GetDescendants()) do
+                if v:IsA("TextButton") and v.Visible and v.Active then
+                    local t = string.lower(v.Text or "")
+                    if string.find(t, "собрать") or string.find(t, "harvest") or 
+                       string.find(t, "продать") or string.find(t, "sell") or
+                       string.find(t, "посадить") or string.find(t, "plant") then
+                        pcall(function()
+                            v:Click()
+                            fireclickdetector(v)
+                            wait(0.3)
+                        end)
                     end
                 end
             end
         end
     end
-    return nil
-end
-
--- Функции действий
-local function doHarvest()
-    local btn = findButton("собрать", "harvest", "collect", "сбор")
-    if btn then
-        pcall(function()
-            btn:Click()
-            fireclickdetector(btn)
-        end)
-        return true
-    end
-    return false
-end
-
-local function doSell()
-    local btn = findButton("продать", "sell")
-    if btn then
-        pcall(function()
-            btn:Click()
-            fireclickdetector(btn)
-        end)
-        return true
-    end
-    return false
-end
-
-local function doPlant()
-    local btn = findButton("посадить", "plant", "seed")
-    if btn then
-        pcall(function()
-            btn:Click()
-            fireclickdetector(btn)
-        end)
-        return true
-    end
-    return false
-end
-
--- Обновление кнопок
-local function updateButtons()
-    harvestBtn.BackgroundColor3 = harvestOn and Color3.fromRGB(0, 150, 0) or Color3.fromRGB(80, 0, 0)
-    harvestBtn.Text = harvestOn and "СОБРАТЬ" or "ВЫКЛ"
-    
-    sellBtn.BackgroundColor3 = sellOn and Color3.fromRGB(0, 130, 200) or Color3.fromRGB(80, 0, 0)
-    sellBtn.Text = sellOn and "ПРОДАТЬ" or "ВЫКЛ"
-    
-    plantBtn.BackgroundColor3 = plantOn and Color3.fromRGB(180, 130, 0) or Color3.fromRGB(80, 0, 0)
-    plantBtn.Text = plantOn and "ПОСАДИТЬ" or "ВЫКЛ"
-end
-
--- Обработчики кнопок
-harvestBtn.MouseButton1Click:Connect(function()
-    harvestOn = not harvestOn
-    updateButtons()
 end)
 
-sellBtn.MouseButton1Click:Connect(function()
-    sellOn = not sellOn
-    updateButtons()
-end)
-
-plantBtn.MouseButton1Click:Connect(function()
-    plantOn = not plantOn
-    updateButtons()
-end)
-
-closeBtn.MouseButton1Click:Connect(function()
-    gui:Destroy()
-    _G.GardenFarm = nil
-end)
-
--- Главный цикл
-spawn(function()
-    while gui and gui.Parent do
-        wait(1)
-        if harvestOn then
-            doHarvest()
-        end
-        if sellOn then
-            doSell()
-        end
-        if plantOn then
-            doPlant()
-        end
-    end
-end)
-
-print("✅ Garden Farm запущен!")
-updateButtons()
+print("✅ Запущено!")
