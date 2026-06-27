@@ -1,103 +1,91 @@
 -- ============================================
--- GROW A GARDEN 2 - AUTO FARM SCRIPT v1.0
--- Для Xeno Executor
+-- GROW A GARDEN 2 - AUTO FARM
+-- ИСПРАВЛЕННАЯ ВЕРСИЯ
 -- ============================================
 
--- Создаем GUI
-local ScreenGui = Instance.new("ScreenGui")
-local MainFrame = Instance.new("Frame")
-local Title = Instance.new("TextLabel")
-local AutoHarvestBtn = Instance.new("TextButton")
-local AutoSellBtn = Instance.new("TextButton")
-local AutoPlantBtn = Instance.new("TextButton")
-local StatusLabel = Instance.new("TextLabel")
-local CloseBtn = Instance.new("TextButton")
+-- Проверка на повторный запуск
+if _G.GardenFarm then
+    _G.GardenFarm:Destroy()
+end
 
--- Настройки GUI
-ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-ScreenGui.Name = "GardenGUI"
+local player = game.Players.LocalPlayer
+local gui = Instance.new("ScreenGui")
+local frame = Instance.new("Frame")
+local title = Instance.new("TextLabel")
+local harvestBtn = Instance.new("TextButton")
+local sellBtn = Instance.new("TextButton")
+local plantBtn = Instance.new("TextButton")
+local closeBtn = Instance.new("TextButton")
 
-MainFrame.Parent = ScreenGui
-MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
-MainFrame.BorderSizePixel = 2
-MainFrame.BorderColor3 = Color3.fromRGB(100, 200, 100)
-MainFrame.Position = UDim2.new(0.5, -150, 0.3, 0)
-MainFrame.Size = UDim2.new(0, 300, 0, 350)
-MainFrame.Active = true
-MainFrame.Draggable = true
+-- Создаём GUI
+gui.Parent = player:WaitForChild("PlayerGui")
+gui.Name = "GardenFarm"
+_G.GardenFarm = gui
 
-Title.Parent = MainFrame
-Title.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
-Title.Size = UDim2.new(1, 0, 0, 40)
-Title.Position = UDim2.new(0, 0, 0, 0)
-Title.Text = "🌱 Garden Auto Farm"
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 18
+frame.Parent = gui
+frame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+frame.BorderSizePixel = 0
+frame.Position = UDim2.new(0.5, -120, 0.4, 0)
+frame.Size = UDim2.new(0, 240, 0, 200)
+frame.Active = true
+frame.Draggable = true
+frame.ClipsDescendants = true
 
--- Кнопки
-local function createButton(text, yPos, color)
+-- Заголовок
+title.Parent = frame
+title.BackgroundColor3 = Color3.fromRGB(0, 180, 0)
+title.Size = UDim2.new(1, 0, 0, 35)
+title.Position = UDim2.new(0, 0, 0, 0)
+title.Text = "🌱 GARDEN FARM"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 16
+title.TextScaled = true
+
+-- Функция создания кнопок
+local function makeBtn(text, y, color)
     local btn = Instance.new("TextButton")
-    btn.Parent = MainFrame
+    btn.Parent = frame
     btn.BackgroundColor3 = color
-    btn.Size = UDim2.new(0.8, 0, 0, 40)
-    btn.Position = UDim2.new(0.1, 0, 0, yPos)
+    btn.Size = UDim2.new(0.8, 0, 0, 35)
+    btn.Position = UDim2.new(0.1, 0, 0, y)
     btn.Text = text
     btn.TextColor3 = Color3.fromRGB(255, 255, 255)
     btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 16
-    btn.BackgroundTransparency = 0.1
+    btn.TextSize = 14
+    btn.BorderSizePixel = 0
     return btn
 end
 
-AutoHarvestBtn = createButton("🌾 Авто-Сбор (Вкл)", 50, Color3.fromRGB(0, 150, 0))
-AutoSellBtn = createButton("💰 Авто-Продажа (Вкл)", 110, Color3.fromRGB(0, 150, 200))
-AutoPlantBtn = createButton("🌱 Авто-Посадка (Вкл)", 170, Color3.fromRGB(150, 150, 0))
-
--- Статус
-StatusLabel.Parent = MainFrame
-StatusLabel.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-StatusLabel.Size = UDim2.new(0.9, 0, 0, 50)
-StatusLabel.Position = UDim2.new(0.05, 0, 0, 230)
-StatusLabel.Text = "Статус: Ожидание..."
-StatusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-StatusLabel.Font = Enum.Font.Gotham
-StatusLabel.TextSize = 14
-StatusLabel.TextWrapped = true
+harvestBtn = makeBtn("СОБРАТЬ", 45, Color3.fromRGB(0, 150, 0))
+sellBtn = makeBtn("ПРОДАТЬ", 90, Color3.fromRGB(0, 130, 200))
+plantBtn = makeBtn("ПОСАДИТЬ", 135, Color3.fromRGB(180, 130, 0))
 
 -- Кнопка закрыть
-CloseBtn.Parent = MainFrame
-CloseBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-CloseBtn.Size = UDim2.new(0.2, 0, 0, 30)
-CloseBtn.Position = UDim2.new(0.8, 0, 0, 0)
-CloseBtn.Text = "X"
-CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseBtn.Font = Enum.Font.GothamBold
-CloseBtn.TextSize = 16
-CloseBtn.BorderSizePixel = 0
+closeBtn.Parent = frame
+closeBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
+closeBtn.Size = UDim2.new(0.2, 0, 0, 30)
+closeBtn.Position = UDim2.new(0.8, 0, 0, 2)
+closeBtn.Text = "✕"
+closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 14
+closeBtn.BorderSizePixel = 0
 
--- ============================================
--- ОСНОВНАЯ ЛОГИКА СКРИПТА
--- ============================================
+-- Переменные состояния
+local harvestOn = true
+local sellOn = true
+local plantOn = true
 
-local Players = game:GetService("Players")
-local Player = Players.LocalPlayer
-local Workspace = game:GetService("Workspace")
-local RunService = game:GetService("RunService")
-local VirtualUser = game:GetService("VirtualUser")
-
-local isHarvesting = true
-local isSelling = true
-local isPlanting = true
-
--- Функция для поиска кнопок в игре
-local function findButton(texts)
-    for _, text in ipairs(texts) do
-        for _, v in pairs(game:GetDescendants()) do
-            if v:IsA("TextButton") or v:IsA("ImageButton") then
-                if v.Visible and v.Active then
-                    local btnText = v.Text or ""
-                    if string.lower(btnText):find(string.lower(text)) then
+-- Функция поиска кнопок в игре
+local function findButton(...)
+    local texts = {...}
+    for _, v in pairs(game:GetDescendants()) do
+        if v:IsA("TextButton") or v:IsA("ImageButton") then
+            if v.Visible and v.Active then
+                local text = v.Text or ""
+                for _, search in ipairs(texts) do
+                    if string.find(string.lower(text), string.lower(search)) then
                         return v
                     end
                 end
@@ -107,170 +95,91 @@ local function findButton(texts)
     return nil
 end
 
--- Функция для сбора урожая
-local function harvest()
-    local harvestBtn = findButton({"собрать", "harvest", "collect", "сбор"})
-    if harvestBtn then
-        if harvestBtn.Visible and harvestBtn.Active then
-            StatusLabel.Text = "🌾 Собираем урожай..."
-            fireclickdetector(harvestBtn)
-            -- Альтернативный способ клика
-            harvestBtn:Click()
-            return true
-        end
+-- Функции действий
+local function doHarvest()
+    local btn = findButton("собрать", "harvest", "collect", "сбор")
+    if btn then
+        pcall(function()
+            btn:Click()
+            fireclickdetector(btn)
+        end)
+        return true
     end
     return false
 end
 
--- Функция для продажи
-local function sell()
-    local sellBtn = findButton({"продать", "sell", "продажа"})
-    if sellBtn then
-        if sellBtn.Visible and sellBtn.Active then
-            StatusLabel.Text = "💰 Продаем урожай..."
-            fireclickdetector(sellBtn)
-            sellBtn:Click()
-            return true
-        end
+local function doSell()
+    local btn = findButton("продать", "sell")
+    if btn then
+        pcall(function()
+            btn:Click()
+            fireclickdetector(btn)
+        end)
+        return true
     end
     return false
 end
 
--- Функция для посадки
-local function plant()
-    local plantBtn = findButton({"посадить", "plant", "seed"})
-    if plantBtn then
-        if plantBtn.Visible and plantBtn.Active then
-            StatusLabel.Text = "🌱 Сажаем семена..."
-            fireclickdetector(plantBtn)
-            plantBtn:Click()
-            return true
-        end
+local function doPlant()
+    local btn = findButton("посадить", "plant", "seed")
+    if btn then
+        pcall(function()
+            btn:Click()
+            fireclickdetector(btn)
+        end)
+        return true
     end
     return false
 end
 
--- Поиск объектов для взаимодействия
-local function findInteractableObjects()
-    local objects = {}
-    for _, v in pairs(Workspace:GetDescendants()) do
-        if v:IsA("Model") or v:IsA("Part") then
-            if v.Name and string.lower(v.Name):find("plant") or string.lower(v.Name):find("crop") or string.lower(v.Name):find("garden") then
-                table.insert(objects, v)
-            end
-        end
-    end
-    return objects
+-- Обновление кнопок
+local function updateButtons()
+    harvestBtn.BackgroundColor3 = harvestOn and Color3.fromRGB(0, 150, 0) or Color3.fromRGB(80, 0, 0)
+    harvestBtn.Text = harvestOn and "СОБРАТЬ" or "ВЫКЛ"
+    
+    sellBtn.BackgroundColor3 = sellOn and Color3.fromRGB(0, 130, 200) or Color3.fromRGB(80, 0, 0)
+    sellBtn.Text = sellOn and "ПРОДАТЬ" or "ВЫКЛ"
+    
+    plantBtn.BackgroundColor3 = plantOn and Color3.fromRGB(180, 130, 0) or Color3.fromRGB(80, 0, 0)
+    plantBtn.Text = plantOn and "ПОСАДИТЬ" or "ВЫКЛ"
 end
 
--- Tween для перемещения
-local function moveTo(position)
-    if not position then return end
-    local hrp = Player.Character and Player.Character:FindFirstChild("HumanoidRootPart")
-    if hrp then
-        hrp.CFrame = CFrame.new(position)
-        wait(0.1)
-    end
-end
+-- Обработчики кнопок
+harvestBtn.MouseButton1Click:Connect(function()
+    harvestOn = not harvestOn
+    updateButtons()
+end)
 
--- Основной цикл фарма
-local function farmLoop()
-    while wait(0.5) do
-        if not isHarvesting and not isSelling and not isPlanting then
-            StatusLabel.Text = "⏸ Приостановлен"
-            wait(1)
-            continue
+sellBtn.MouseButton1Click:Connect(function()
+    sellOn = not sellOn
+    updateButtons()
+end)
+
+plantBtn.MouseButton1Click:Connect(function()
+    plantOn = not plantOn
+    updateButtons()
+end)
+
+closeBtn.MouseButton1Click:Connect(function()
+    gui:Destroy()
+    _G.GardenFarm = nil
+end)
+
+-- Главный цикл
+spawn(function()
+    while gui and gui.Parent do
+        wait(1)
+        if harvestOn then
+            doHarvest()
         end
-
-        -- Авто-сбор
-        if isHarvesting then
-            local success = harvest()
-            if success then
-                wait(0.3)
-            end
+        if sellOn then
+            doSell()
         end
-
-        -- Авто-продажа
-        if isSelling then
-            local success = sell()
-            if success then
-                wait(0.3)
-            end
-        end
-
-        -- Авто-посадка
-        if isPlanting then
-            local success = plant()
-            if success then
-                wait(0.3)
-            end
-        end
-
-        -- Поиск объектов поблизости
-        if not harvest() and not sell() and not plant() then
-            StatusLabel.Text = "🔍 Ищем урожай..."
-            
-            -- Попытка найти объекты и подойти к ним
-            local objects = findInteractableObjects()
-            if #objects > 0 then
-                for _, obj in ipairs(objects) do
-                    if obj:FindFirstChild("Position") then
-                        moveTo(obj.Position.Value)
-                        wait(0.5)
-                        break
-                    end
-                end
-            else
-                StatusLabel.Text = "⏳ Ожидаем урожай..."
-                wait(2)
-            end
+        if plantOn then
+            doPlant()
         end
     end
-end
-
--- ============================================
--- УПРАВЛЕНИЕ КНОПКАМИ
--- ============================================
-
-AutoHarvestBtn.MouseButton1Click:Connect(function()
-    isHarvesting = not isHarvesting
-    AutoHarvestBtn.BackgroundColor3 = isHarvesting and Color3.fromRGB(0, 150, 0) or Color3.fromRGB(100, 0, 0)
-    AutoHarvestBtn.Text = isHarvesting and "🌾 Авто-Сбор (Вкл)" or "🌾 Авто-Сбор (Выкл)"
-    StatusLabel.Text = isHarvesting and "Сбор включен" or "Сбор выключен"
 end)
 
-AutoSellBtn.MouseButton1Click:Connect(function()
-    isSelling = not isSelling
-    AutoSellBtn.BackgroundColor3 = isSelling and Color3.fromRGB(0, 150, 200) or Color3.fromRGB(100, 0, 0)
-    AutoSellBtn.Text = isSelling and "💰 Авто-Продажа (Вкл)" or "💰 Авто-Продажа (Выкл)"
-    StatusLabel.Text = isSelling and "Продажа включена" or "Продажа выключена"
-end)
-
-AutoPlantBtn.MouseButton1Click:Connect(function()
-    isPlanting = not isPlanting
-    AutoPlantBtn.BackgroundColor3 = isPlanting and Color3.fromRGB(150, 150, 0) or Color3.fromRGB(100, 0, 0)
-    AutoPlantBtn.Text = isPlanting and "🌱 Авто-Посадка (Вкл)" or "🌱 Авто-Посадка (Выкл)"
-    StatusLabel.Text = isPlanting and "Посадка включена" or "Посадка выключена"
-end)
-
-CloseBtn.MouseButton1Click:Connect(function()
-    ScreenGui:Destroy()
-    StatusLabel.Text = "Скрипт остановлен"
-end)
-
--- ============================================
--- ЗАПУСК
--- ============================================
-
-StatusLabel.Text = "✅ Скрипт запущен!"
-wait(0.5)
-
--- Запускаем фарм в отдельном потоке
-spawn(farmLoop)
-
--- Дополнительная функция для автоматической игры
-game:GetService("VirtualUser"):CaptureController()
-game:GetService("VirtualUser"):ClickButton2(Vector2.new())
-
-print("🌱 Grow a Garden 2 - Auto Farm Script загружен!")
-print("Настройки в меню скрипта")
+print("✅ Garden Farm запущен!")
+updateButtons()
